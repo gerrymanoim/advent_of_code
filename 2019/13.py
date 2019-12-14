@@ -114,6 +114,6 @@ block is broken?
 
 # We play by keeping our joystick pointed towards the ball
 
-arcade_cabinet = ArcadeCabinet(program, free_play=True, debug_mode=True)
+arcade_cabinet = ArcadeCabinet(program, free_play=True)
 arcade_cabinet()
 print(arcade_cabinet.score)
