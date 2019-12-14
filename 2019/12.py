@@ -27,41 +27,131 @@ y=2, z=6. This process does not modify the velocity of any moon.
 from pathlib import Path
 from collections import namedtuple
 from itertools import combinations
-
+import re
+from string import ascii_uppercase
+from typing import Iterator, List, Dict
 
 Position = namedtuple("Position", ["x", "y", "z"])
 Velocity = namedtuple("Velocity", ["x", "y", "z"])
 
 
 class Moon:
-    def __init__(self, x: int, y: int, z: int):
-        self.position = Position(x, y, z)
-        self._velocity = Velocity(0, 0, 0)
+    dimensions: List[str] = ["x", "y", "z"]
 
-    def __call__(self):
-        # step
-        pass
+    def __init__(self, x: int, y: int, z: int, name: str):
+        self.position = dict(x=x, y=y, z=z)
+        self.velocity = dict(x=0, y=0, z=0)
+        self.name = name
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        return f"pos=<{self.position}>, vel=<{self.velocity}>"
 
     def __xor__(self, other):
-        self.velocity = other.position
-        other.velocity = self.position
-
-    @property
-    def velocity(self):
-        return self._velocity
-
-    @velocity.setter
-    def velocity(self, other_position):
         for dim in ("x", "y", "z"):
-            self._velocity["dim"] = self.velocity["dim"] + self.position_delta(
-                self.position["dim"], other_position["dim"]
+            self.velocity[dim] += self.velocity_delta(
+                self.position[dim], other.position[dim]
             )
-        # update our velocity in position comparison
+            other.velocity[dim] += other.velocity_delta(
+                other.position[dim], self.position[dim]
+            )
 
-    def position_delta(self, mine, other):
+    def move(self):
+        for dim in self.dimensions:
+            self.position[dim] += self.velocity[dim]
+
+    def velocity_delta(self, mine, other):
         if mine > other:
-            return 1
-        elif mine < other:
             return -1
+        elif mine < other:
+            return 1
         else:
             return 0
+
+    @property
+    def kinetic_energy(self) -> int:
+        return sum((abs(coord) for coord in self.velocity.values()))
+
+    @property
+    def potential_energy(self) -> int:
+        return sum((abs(coord) for coord in self.position.values()))
+
+    @property
+    def total_energy(self) -> int:
+        return self.kinetic_energy * self.potential_energy
+
+    @property
+    def info(self) -> Dict[str, int]:
+        return {
+            "name": self.name,
+            "x": self.position["x"],
+            "y": self.position["y"],
+            "z": self.position["z"],
+            "vx": self.velocity["x"],
+            "vy": self.velocity["y"],
+            "vz": self.velocity["z"],
+            "ke": self.kinetic_energy,
+            "pe": self.potential_energy,
+            "te": self.total_energy,
+        }
+
+
+def extract_coordinates(txt: str) -> Iterator[int]:
+    coordinates = re.findall(r"-?\d{1,2}", txt)
+    return (int(coordinate) for coordinate in coordinates)
+
+
+in_txt = Path("input12.txt").read_text().rstrip().splitlines()
+
+moons = [
+    Moon(*extract_coordinates(moon), name)
+    for name, moon in zip(ascii_uppercase, in_txt)
+]
+
+
+def energy_after_n_steps(moons: List[Moon], steps: int = 1000) -> int:
+    for _ in range(steps):
+        for left, right in combinations(moons, 2):
+            left ^ right
+        _ = [moon.move() for moon in moons]
+
+    return sum((moon.total_energy for moon in moons))
+
+
+print(energy_after_n_steps(moons))
+
+"""
+All this drifting around in space makes you wonder about the nature of the
+universe. Does history really repeat itself? You're curious whether the moons
+will ever return to a previous state.
+
+Determine the number of steps that must occur before all of the moons'
+positions and velocities exactly match a previous point in time.
+
+NOTEs (for self):
+- sum of all velocities in a direction == 0
+- sum of all positions in a dimension == some constant
+
+- each individual velocity is on some cycle
+- So all are on some LCM cycle
+- So positions are on some cycle.
+"""
+
+moons = [
+    Moon(*extract_coordinates(moon), name)
+    for name, moon in zip(ascii_uppercase, in_txt)
+]
+
+
+def record_for_n_steps(moons: List[Moon], steps: int) -> List:
+    out = []
+    for step in range(steps):
+        for moon in moons:
+            out.append(dict(step=step, **moon.info))
+        for left, right in combinations(moons, 2):
+            left ^ right
+        _ = [print(moon) for moon in moons]
+        _ = [moon.move() for moon in moons]
+    return out
