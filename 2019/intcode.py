@@ -3,6 +3,8 @@ from pathlib import Path
 
 from typing import List, Callable, Any
 
+Point = namedtuple("Point", ["x", "y"])
+
 
 def read_intcode_program(input_file: Path):
     return input_file.read_text().rstrip().split(",")
