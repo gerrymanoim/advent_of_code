@@ -25,14 +25,12 @@ y=2, z=3 and a velocity of x=-2, y=0,z=3, then its new position would be x=-1,
 y=2, z=6. This process does not modify the velocity of any moon.
 """
 from pathlib import Path
-from collections import namedtuple
+from functools import reduce
 from itertools import combinations
 import re
 from string import ascii_uppercase
 from typing import Iterator, List, Dict
-
-Position = namedtuple("Position", ["x", "y", "z"])
-Velocity = namedtuple("Velocity", ["x", "y", "z"])
+from math import gcd
 
 
 class Moon:
@@ -145,13 +143,35 @@ moons = [
 ]
 
 
-def record_for_n_steps(moons: List[Moon], steps: int) -> List:
-    out = []
-    for step in range(steps):
-        for moon in moons:
-            out.append(dict(step=step, **moon.info))
+def lcm(x: int, y: int) -> int:
+    return x * y // gcd(x, y)
+
+
+def search_space(moons: List[Moon]) -> Dict[str, int]:
+    states = {dim: set() for dim in Moon.dimensions}
+    steps = 0
+    out = {}
+    while len(out.values()) != 3:
+        state = {
+            dim: tuple(
+                ((moon.position[dim], moon.velocity[dim]) for moon in moons)
+            )
+            for dim in Moon.dimensions
+        }
+        for k, v in state.items():
+            if out.get(k, None):
+                continue
+            if v in states[k]:
+                out[k] = steps
+            else:
+                states[k].add(v)
         for left, right in combinations(moons, 2):
             left ^ right
-        _ = [print(moon) for moon in moons]
         _ = [moon.move() for moon in moons]
+        steps += 1
+
     return out
+
+
+state_space = search_space(moons)
+print(reduce(lcm, state_space.values()))
