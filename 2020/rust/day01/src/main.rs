@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+// use std::collections::HashSet;
 use std::io::{self, BufRead};
 
 fn main() {
@@ -11,15 +11,24 @@ fn main() {
     }
     // Part 1
     let get_to = 2020;
-    let mut store = HashSet::new();
-    for number in &numbers {
-        if store.contains(number) {
-            println!("{}", number * (get_to - number));
-            break;
-        } else {
-            store.insert(get_to - number);
+    for (i, el1) in numbers.iter().enumerate() {
+        for el2 in numbers[i+1..].iter() {
+            if el1 + el2 == get_to {
+                println!("{}", el1 * el2);
+                break
+            }
         }
     }
+    // alaternative implementation I originally used
+    // let mut store = HashSet::new();
+    // for number in &numbers {
+    //     if store.contains(number) {
+    //         println!("{}", number * (get_to - number));
+    //         break;
+    //     } else {
+    //         store.insert(get_to - number);
+    //     }
+    // }
     // part 2
     numbers.sort();
     let max_idx = numbers.len() - 1;
