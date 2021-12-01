@@ -1,4 +1,5 @@
-use std::io::{self, BufRead};
+extern crate utils;
+use utils::stdin_to_int_vec;
 
 // To do this, count the number of times a depth measurement increases from
 // the previous measurement. (There is no measurement before the first
@@ -18,12 +19,7 @@ fn part_2(v: &Vec<i32>) -> usize {
 }
 
 fn main() {
-    let numbers: Vec<i32> = io::stdin()
-        .lock()
-        .lines()
-        .map(|l| l.unwrap())
-        .map(|l| l.parse::<i32>().unwrap())
-        .collect();
+    let numbers: Vec<i32> = stdin_to_int_vec();
 
     println!("{}", part_1(&numbers));
     println!("{}", part_2(&numbers));
