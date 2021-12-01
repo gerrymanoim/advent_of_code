@@ -1,21 +1,29 @@
 use std::io::{self, BufRead};
 
 fn main() {
-    let reader = io::stdin();
-    let mut numbers: Vec<i32> = Vec::new();
-    let lines_iter = reader.lock().lines().map(|l| l.unwrap());
+    let numbers: Vec<i32> = io::stdin()
+        .lock()
+        .lines()
+        .map(|l| l.unwrap())
+        .map(|l| l.parse::<i32>().unwrap())
+        .collect();
 
-    for line in lines_iter {
-        numbers.push(line.parse::<i32>().unwrap())
-    }
-
-    //Part 1
+    /* Part 1
+    To do this, count the number of times a depth measurement increases from
+    the previous measurement. (There is no measurement before the first
+    measurement.) In the example above, the changes are as follows:
+    */
     let count = numbers.windows(2).filter(|x| x[1] > x[0]).count();
     println!("{}", count);
 
-    //Part 2
-    let triplets = numbers.windows(3);
-    let window_sums: Vec<i32> = triplets.map(|x| x.iter().sum()).collect();
-    let count_2 = window_sums.windows(2).filter(|x| x[1] > x[0]).count();
+    // Part 2
+    // consider sums of a three-measurement sliding window
+    let count_2 = numbers
+        .windows(3)
+        .map(|x| x.iter().sum())
+        .collect::<Vec<i32>>()
+        .windows(2)
+        .filter(|x| x[1] > x[0])
+        .count();
     println!("{}", count_2);
 }
