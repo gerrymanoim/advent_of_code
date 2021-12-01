@@ -11,11 +11,11 @@ fn part_1(v: &Vec<i32>) -> usize {
 // consider sums of a three-measurement sliding window
 fn part_2(v: &Vec<i32>) -> usize {
     v.windows(3)
-    .map(|x| x.iter().sum())
-    .collect::<Vec<i32>>()
-    .windows(2)
-    .filter(|x| x[1] > x[0])
-    .count()
+        .map(|x| x.iter().sum())
+        .collect::<Vec<i32>>()
+        .windows(2)
+        .filter(|x| x[1] > x[0])
+        .count()
 }
 
 fn main() {
@@ -27,7 +27,7 @@ fn main() {
 
 #[test]
 fn examples() {
-    let raw_input : Vec<i32> = "199
+    let raw_input: Vec<i32> = "199
     200
     208
     210
@@ -36,7 +36,11 @@ fn examples() {
     240
     269
     260
-    263".split_whitespace().map(|l|l.parse::<i32>().unwrap()).collect();
+    263"
+    .split_whitespace()
+    .map(|l| l.parse::<i32>().unwrap())
+    .collect();
+
     assert_eq!(part_1(&raw_input), 7);
     assert_eq!(part_2(&raw_input), 5);
 }

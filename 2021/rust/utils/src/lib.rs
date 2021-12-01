@@ -1,5 +1,6 @@
 use std::io::{self, BufRead};
 
+#[inline(always)]
 pub fn stdin_to_int_vec() -> Vec<i32> {
     io::stdin()
         .lock()
