@@ -10,6 +10,15 @@ pub fn stdin_to_int_vec() -> Vec<i32> {
         .collect()
 }
 
+#[inline(always)]
+pub fn stdin_to_str_vec() -> Vec<String> {
+    io::stdin()
+        .lock()
+        .lines()
+        .map(|l| l.unwrap())
+        .collect::<Vec<String>>()
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
