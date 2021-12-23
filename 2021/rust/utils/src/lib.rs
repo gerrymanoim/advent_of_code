@@ -1,4 +1,5 @@
 use std::io::{self, BufRead};
+use std::{collections::HashMap, hash::Hash};
 
 #[inline(always)]
 pub fn stdin_to_int_vec() -> Vec<i32> {
@@ -120,6 +121,16 @@ impl Grid {
 
         neighbors
     }
+}
+
+pub fn vec_to_counts<T: Eq + Hash + Clone>(v: &Vec<T>) -> HashMap<T, i64> {
+    let mut letters: HashMap<T, i64> = HashMap::new();
+
+    for ch in v {
+        let counter = letters.entry(ch.to_owned()).or_insert(0);
+        *counter += 1;
+    }
+    letters
 }
 
 #[cfg(test)]
