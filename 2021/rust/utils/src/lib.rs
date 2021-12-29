@@ -1,5 +1,7 @@
 use std::io::{self, BufRead};
 use std::{collections::HashMap, hash::Hash};
+use std::cmp::Ordering;
+
 
 #[inline(always)]
 pub fn stdin_to_int_vec() -> Vec<i32> {
@@ -46,11 +48,25 @@ impl Point {
     }
 }
 
+
+impl Ord for Point {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // flip?
+        self.xy().cmp(&other.xy())
+    }
+}
+
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Grid {
     pub data: Vec<Point>,
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
 }
 
 impl Grid {
@@ -86,6 +102,29 @@ impl Grid {
         self.data[y * self.width + x].value = value;
     }
 
+    /// Neighbors clockwise, no diagnoals
+    ///
+    ///   0
+    /// 3 p 1
+    ///   2
+    pub fn manhattan_neighbors_of(&self, p: &Point) -> [Option<(usize, usize)>; 4] {
+
+        let mut neighbors: [Option<(usize, usize)>; 4] = [None, None, None, None];
+        if p.y > 0 {
+            neighbors[0] = Some((p.x, p.y - 1));
+        }
+        if p.x < self.width - 1 {
+            neighbors[1] = Some((p.x + 1, p.y));
+        }
+        if p.y < self.height - 1 {
+            neighbors[2] = Some((p.x, p.y + 1));
+        }
+        if p.x > 0 {
+            neighbors[3] = Some((p.x - 1, p.y));
+        }
+
+        neighbors
+    }
     /// Neighbors clockwise
     ///
     /// 0 1 2
