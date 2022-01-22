@@ -1,7 +1,6 @@
+use std::cmp::Ordering;
 use std::io::{self, BufRead};
 use std::{collections::HashMap, hash::Hash};
-use std::cmp::Ordering;
-
 
 #[inline(always)]
 pub fn stdin_to_int_vec() -> Vec<i32> {
@@ -35,6 +34,10 @@ pub fn line_of_stdin_to_int_vec() -> Vec<i32> {
         .collect()
 }
 
+pub fn read_single_line_stdin() -> String {
+    io::stdin().lock().lines().next().unwrap().unwrap()
+}
+
 #[derive(Debug, PartialEq, Hash, Eq, Clone, Copy)]
 pub struct Point {
     pub x: usize,
@@ -47,7 +50,6 @@ impl Point {
         (self.x, self.y)
     }
 }
-
 
 impl Ord for Point {
     fn cmp(&self, other: &Self) -> Ordering {
@@ -108,7 +110,6 @@ impl Grid {
     /// 3 p 1
     ///   2
     pub fn manhattan_neighbors_of(&self, p: &Point) -> [Option<(usize, usize)>; 4] {
-
         let mut neighbors: [Option<(usize, usize)>; 4] = [None, None, None, None];
         if p.y > 0 {
             neighbors[0] = Some((p.x, p.y - 1));
@@ -131,16 +132,16 @@ impl Grid {
     /// 7 p 3
     /// 6 5 4
     pub fn neighbors_of(&self, p: &Point) -> [Option<(usize, usize)>; 8] {
-
-        let mut neighbors: [Option<(usize, usize)>; 8] = [None, None, None, None, None, None, None, None];
+        let mut neighbors: [Option<(usize, usize)>; 8] =
+            [None, None, None, None, None, None, None, None];
         if p.y > 0 && p.x > 0 {
-            neighbors[0] = Some((p.x - 1, p.y -1));
+            neighbors[0] = Some((p.x - 1, p.y - 1));
         }
         if p.y > 0 {
             neighbors[1] = Some((p.x, p.y - 1));
         }
         if p.y > 0 && p.x < self.width - 1 {
-            neighbors[2] = Some((p.x + 1, p.y -1));
+            neighbors[2] = Some((p.x + 1, p.y - 1));
         }
         if p.x < self.width - 1 {
             neighbors[3] = Some((p.x + 1, p.y));
@@ -152,7 +153,7 @@ impl Grid {
             neighbors[5] = Some((p.x, p.y + 1));
         }
         if p.y < self.height - 1 && p.x > 0 {
-            neighbors[6] = Some((p.x - 1, p.y +1));
+            neighbors[6] = Some((p.x - 1, p.y + 1));
         }
         if p.x > 0 {
             neighbors[7] = Some((p.x - 1, p.y));
