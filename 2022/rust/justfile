@@ -1,0 +1,11 @@
+default:
+    just --list
+
+build day:
+    cd day{{day}} && cargo build
+
+test day:
+    cd day{{day}} && cargo test
+
+run day:
+    cd day{{day}} && cargo run --release < ../../inputs/input{{day}}.txt
