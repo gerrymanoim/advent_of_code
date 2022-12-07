@@ -9,3 +9,7 @@ test day:
 
 run day:
     cd day{{day}} && cargo run --release < ../../inputs/input{{day}}.txt
+
+commit day:
+    git add day{{day}}
+    git add ../inputs/input{{day}}.txt
