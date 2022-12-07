@@ -13,3 +13,4 @@ run day:
 commit day:
     git add day{{day}}
     git add ../inputs/input{{day}}.txt
+    git commit -m "2022 Day {{day}} - rust"
