@@ -8,7 +8,7 @@ test day:
     cd day{{day}} && cargo test
 
 run day:
-    cd day{{day}} && cargo run --release < ../../inputs/input{{day}}.txt
+    cd day{{day}} && cargo run
 
 commit day:
     git add day{{day}}

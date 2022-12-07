@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, num::ParseIntError, str::FromStr};
+use std::{num::ParseIntError, str::FromStr};
 extern crate utils;
 
 use utils::stdin_to_str_vec;
