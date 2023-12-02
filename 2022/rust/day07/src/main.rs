@@ -1,112 +1,112 @@
 use std::collections::HashMap;
 
-struct File {
-    size: usize,
-    name: String,
-}
+fn build_directory_stats(input: &Vec<&str>) -> HashMap<String, usize> {
+    let mut session = input.clone();
+    session.reverse();
 
-struct Directory {
-    directories: Vec<Directory>,
-    files: Vec<File>,
-}
+    let mut current_dir = session.pop().unwrap().strip_prefix("$ cd ").unwrap();
+    let mut dir_queue = vec![current_dir];
 
-fn execute_command<'a>(
-    session: &Vec<&'a str>,
-    session_pntr: usize,
-    current_dir: &'a str,
-    mut parents_to_children: &mut HashMap<&'a str, Vec<&'a str>>,
-    mut children_to_parents: &mut HashMap<&'a str, Vec<&'a str>>,
-    mut directory_stats: &mut HashMap<&'a str, usize>,
-) -> (Option<&'a str>, usize) {
-    let cmd = session[session_pntr];
-    dbg!(cmd);
-    if cmd.starts_with("$ cd ") {
-        (
-            Some(cmd.strip_prefix("$ cd ").expect("correctly prefixed str")),
-            1,
-        )
-    } else if cmd == "$ ls" {
-        let mut file_sizes = 0;
-        let mut lines_processed = 0;
-        let directory_children = parents_to_children.entry(current_dir).or_default();
-        for (n, line) in session[session_pntr+1..].iter().enumerate() {
-            dbg!(line);
-            if line.starts_with("$") {
-                lines_processed = n + 2;
-                break;
-            } else if line.starts_with("dir") {
-                let child_dir = line.strip_prefix("dir ").expect("A directory");
-                directory_children.push(child_dir);
-                children_to_parents
-                    .entry(child_dir)
-                    .and_modify(|e| e.push(current_dir))
-                    .or_insert(vec![current_dir]);
-            } else {
-                let (size_str, _) = line.split_once(" ").expect("this should be a file");
-                let size: usize = size_str.parse().expect("A file size");
-                file_sizes += size;
+    let mut directory_stats: HashMap<String, usize> = HashMap::new();
+    while session.len() > 0 {
+        let cmd = session.pop().expect("commands to not be empty");
+        if cmd.starts_with("$ cd ") {
+            match cmd.strip_prefix("$ cd ") {
+                Some("..") => {
+                    current_dir = dir_queue.pop().expect("Something above current dir");
+                }
+                Some(x) => {
+                    dir_queue.push(current_dir);
+                    current_dir = x;
+                }
+                None => unreachable!("Not correctly prefixed dir"),
+            };
+        } else if cmd == "$ ls" {
+            let mut file_sizes = 0;
+            while (session.len() > 0) && !session.last().unwrap().starts_with("$") {
+                let output_line = session.pop().expect("expect a line");
+                if output_line.starts_with("dir") {
+                    //
+                } else {
+                    let (size_str, _) = output_line.split_once(" ").expect("this should be a file");
+                    let size: usize = size_str.parse().expect("A file size");
+                    file_sizes += size;
+                }
             }
-        }
-        for directory in children_to_parents
-            .get(current_dir)
-            .expect("expect child to exist")
-        {
-            *directory_stats.entry(directory).or_insert(0) += file_sizes;
-        }
-        (None, lines_processed)
-    } else {
-        panic!("Something has gone wrong")
-    }
-}
-
-// TODO ew this sucks
-// fn find_parents<'a>(
-//     current_dir: &'a str,
-//     directory_tree: &HashMap<&'a str, Vec<&'a str>>,
-// ) -> Vec<&'a str> {
-//     todo!()
-// }
-
-fn build_directory_stats<'a>(session: &'a Vec<&'a str>) -> HashMap<&'a str, usize> {
-    let mut parents_to_children = HashMap::new();
-    let mut children_to_parents = HashMap::new();
-    let mut current_dir = "/";
-    parents_to_children.insert(current_dir, Vec::new());
-    children_to_parents.insert(current_dir, Vec::new());
-    let mut directory_stats: HashMap<&str, usize> = HashMap::new();
-    let mut session_pntr = 0;
-    loop {
-        let (maybe_new_dir, steps) = execute_command(
-            session,
-            session_pntr,
-            current_dir,
-            &mut parents_to_children,
-            &mut children_to_parents,
-            &mut directory_stats,
-        );
-        if maybe_new_dir.is_some() {
-            current_dir = maybe_new_dir.unwrap();
-        }
-        session_pntr += steps;
-        dbg!(session_pntr, session.len());
-        if session_pntr + 2 == session.len() {
-            break;
+            // ew
+            for n in 0..dir_queue.len() {
+                let key = dir_queue[..=n].join("/");
+                *directory_stats.entry(key).or_insert(0) += file_sizes;
+            }
+            let key = dir_queue.join("/") + "/" + current_dir;
+            *directory_stats.entry(key).or_insert(0) += file_sizes;
+        } else {
+            panic!("Something has gone wrong")
         }
     }
+
     directory_stats
 }
 
-fn part_1(session: &Vec<&str>) -> usize {
-    let directory_stats = build_directory_stats(session);
+fn part_1(input: &Vec<&str>) -> usize {
+    let directory_stats = build_directory_stats(input);
     directory_stats
         .values()
         .filter(|v| **v <= 100000 as usize)
         .sum()
 }
 
+fn part_2(input: &Vec<&str>) -> usize {
+    let directory_stats = build_directory_stats(input);
+    let total_space = 70000000;
+    let unused_needed = 30000000;
+    let unused_sapce = total_space-  directory_stats.get("/").unwrap();
+    let mut dir_sizes: Vec<&usize> = directory_stats.values().collect();
+    dir_sizes.sort();
+    for dir_size in dir_sizes {
+        if unused_sapce + dir_size > unused_needed {
+            return *dir_size
+        }
+    }
+    unreachable!("We should not be here")
+}
+
 fn main() {
-    let session = include_str!("../../../inputs/input07.txt")
+    let input = include_str!("../../../inputs/input07.txt")
         .lines()
         .collect::<Vec<&str>>();
-    println!("{}", part_1(&session));
+    println!("{}", part_1(&input));
+    println!("{}", part_2(&input));
+}
+
+
+#[test]
+fn example() {
+    let session = "$ cd /
+    $ ls
+    dir a
+    14848514 b.txt
+    8504156 c.dat
+    dir d
+    $ cd a
+    $ ls
+    dir e
+    29116 f
+    2557 g
+    62596 h.lst
+    $ cd e
+    $ ls
+    584 i
+    $ cd ..
+    $ cd ..
+    $ cd d
+    $ ls
+    4060174 j
+    8033020 d.log
+    5626152 d.ext
+    7214296 k"
+        .lines()
+        .map(|s| s.trim())
+        .collect();
+    assert_eq!(part_1(&session), 95437);
 }
