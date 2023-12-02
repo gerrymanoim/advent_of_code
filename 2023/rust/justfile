@@ -1,0 +1,16 @@
+default:
+    just --list
+
+build day:
+    cd day{{day}} && cargo build
+
+test day:
+    cd day{{day}} && cargo test
+
+run day:
+    cd day{{day}} && cargo run
+
+commit day:
+    git add day{{day}}
+    git add ../inputs/input{{day}}.txt
+    git commit -m "2022 Day {{day}} - rust"
