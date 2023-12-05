@@ -1,8 +1,8 @@
-use utils::{stdin_to_str_vec, Grid, Point};
 use colored::*;
 use std::collections::HashMap;
+use utils::{stdin_to_str_vec, Grid, Point};
 
-const DIGITS: [char; 10] =  ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const DIGITS: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
 fn is_near_symbol<'a>(g: &'a Grid, number_points: &Vec<&'a Point>) -> Option<&'a Point> {
     for number_point in number_points {
@@ -39,14 +39,28 @@ fn part_1(g: &Grid) -> usize {
                     }
                 }
                 if is_near_symbol(&g, &number_points).is_some() {
-                    print!("{}", number_points.iter().map(|p|p.value).collect::<String>().red());
+                    print!(
+                        "{}",
+                        number_points
+                            .iter()
+                            .map(|p| p.value)
+                            .collect::<String>()
+                            .red()
+                    );
                     number_points.reverse();
                     for (i, number_point) in number_points.iter().enumerate() {
                         out += (number_point.value.to_digit(10).unwrap() as usize)
                             * 10_usize.pow(i as u32);
                     }
                 } else {
-                    print!("{}", number_points.iter().map(|p|p.value).collect::<String>().blue());
+                    print!(
+                        "{}",
+                        number_points
+                            .iter()
+                            .map(|p| p.value)
+                            .collect::<String>()
+                            .blue()
+                    );
                 }
             } else {
                 x += 1;
@@ -80,7 +94,7 @@ fn part_2(g: &Grid) -> usize {
                         break;
                     }
                 }
-                if let Some(symbol) = is_near_symbol(&g, &number_points){
+                if let Some(symbol) = is_near_symbol(&g, &number_points) {
                     let mut number_value = 0;
                     number_points.reverse();
                     for (i, number_point) in number_points.iter().enumerate() {
@@ -93,8 +107,7 @@ fn part_2(g: &Grid) -> usize {
                         } else {
                             paired_symbols.insert(symbol, number_value);
                         }
-
-                    }                    
+                    }
                 }
             } else {
                 x += 1;
@@ -102,7 +115,6 @@ fn part_2(g: &Grid) -> usize {
         }
     }
     out
-
 }
 
 fn main() {

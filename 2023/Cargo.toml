@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "rust/day04",
     "rust/day03",
     "rust/day02",
     "rust/day01",
