@@ -1,4 +1,3 @@
-extern crate utils;
 
 use utils::stdin_to_str_vec;
 

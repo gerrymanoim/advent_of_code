@@ -42,7 +42,7 @@ pub fn read_single_line_stdin() -> String {
 pub struct Point {
     pub x: usize,
     pub y: usize,
-    pub value: usize,
+    pub value: char,
 }
 
 impl Point {
@@ -77,8 +77,8 @@ impl Grid {
         let height = grid_rows.len();
         let data_points = grid_rows
             .iter()
-            .flat_map(|l| l.chars().map(|c| c.to_digit(10).unwrap() as usize))
-            .collect::<Vec<usize>>();
+            .flat_map(|l| l.chars())
+            .collect::<Vec<char>>();
         let mut data: Vec<Point> = Vec::with_capacity(width * height);
         for y in 0..height {
             for x in 0..width {
@@ -100,7 +100,7 @@ impl Grid {
         &self.data[y * self.width + x]
     }
 
-    pub fn set(&mut self, x: usize, y: usize, value: usize) {
+    pub fn set(&mut self, x: usize, y: usize, value: char) {
         self.data[y * self.width + x].value = value;
     }
 
